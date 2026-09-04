@@ -1,0 +1,375 @@
+<title>Manager Quadrant Inspections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #ECF0F8; --surface: #FFFFFF; --text: #1B2338;
+  --text-sec: #566080; --border: #D2D8EA; --grid: #E4E9F4;
+  --accent: #E05A0A;
+  --drive: #1969B3; --focus: #B58900; --grasp: #14885A; --moves: #7030B8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1520; --surface: #162030; --text: #E6EBF5;
+    --text-sec: #8898B8; --border: #253048; --grid: #1D2B40;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1520; --surface: #162030; --text: #E6EBF5;
+  --text-sec: #8898B8; --border: #253048; --grid: #1D2B40;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Barlow', system-ui, sans-serif; font-size: 14px; line-height: 1.5; }
+
+header {
+  background: var(--surface); border-bottom: 3px solid var(--accent);
+  padding: 14px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.hdr-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.hdr-brand em { color: var(--accent); font-style: normal; }
+.hdr-sep { width: 1px; height: 20px; background: var(--border); }
+.hdr-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600; color: var(--text-sec); letter-spacing: .02em; }
+
+select#managerPicker {
+  margin-left: auto;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 5px 10px; border-radius: 4px;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--border); cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 24px; min-width: 200px;
+}
+
+main { max-width: 1080px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+
+.kpi-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 10px; }
+.kpi { background: var(--surface); border-radius: 5px; padding: 14px 16px; border-left: 4px solid transparent; }
+.kpi.total { border-left-color: var(--accent); }
+.kpi.drive { border-left-color: var(--drive); }
+.kpi.focus { border-left-color: var(--focus); }
+.kpi.grasp { border-left-color: var(--grasp); }
+.kpi.moves { border-left-color: var(--moves); }
+.kpi-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 2px; }
+.kpi-val { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-sec); margin-top: 3px; }
+
+.card { background: var(--surface); border-radius: 5px; padding: 18px 20px; }
+.card-hd { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--text-sec); margin: 0 0 14px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-sec); font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+canvas { display: block; width: 100%; }
+
+/* Manager comparison table */
+table.mgr { width: 100%; border-collapse: collapse; }
+table.mgr th {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--text-sec);
+  padding: 0 10px 8px; border-bottom: 1px solid var(--border); text-align: left;
+}
+table.mgr th.r { text-align: center; }
+table.mgr td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; cursor: pointer; }
+table.mgr td.r { text-align: center; }
+table.mgr tr:last-child td { border-bottom: none; }
+table.mgr tr:hover td { background: var(--bg); }
+table.mgr tr.selected td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.mgr-name { font-weight: 500; }
+.mgr-total { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; }
+
+.sparkbar { display: flex; height: 14px; gap: 1px; border-radius: 2px; overflow: hidden; min-width: 60px; }
+.sparkbar-seg { height: 100%; }
+
+.tooltip {
+  position: fixed; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 8px 12px; pointer-events: none; display: none;
+  font-size: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.18); z-index: 100; min-width: 150px;
+}
+
+@media (max-width: 680px) {
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .kpi.total { grid-column: span 2; }
+}
+</style>
+
+<header>
+  <div class="hdr-brand">Safety Quadrant <em>UK</em></div>
+  <div class="hdr-sep"></div>
+  <div class="hdr-title">Manager View</div>
+  <select id="managerPicker"><option value="-1">All Managers</option></select>
+</header>
+
+<main>
+  <div class="kpi-row" id="kpiRow">
+    <div class="kpi total"><div class="kpi-lbl">Total Inspections</div><div class="kpi-val" id="kTot">122</div><div class="kpi-sub" id="kSub">All managers · Aug 1 – Sep 4</div></div>
+    <div class="kpi drive"><div class="kpi-lbl">DRIVE</div><div class="kpi-val" id="kD" style="color:var(--drive)">44</div><div class="kpi-sub" id="kDs">36.1%</div></div>
+    <div class="kpi focus"><div class="kpi-lbl">FOCUS</div><div class="kpi-val" id="kF" style="color:var(--focus)">27</div><div class="kpi-sub" id="kFs">22.1%</div></div>
+    <div class="kpi grasp"><div class="kpi-lbl">GRASP</div><div class="kpi-val" id="kG" style="color:var(--grasp)">25</div><div class="kpi-sub" id="kGs">20.5%</div></div>
+    <div class="kpi moves"><div class="kpi-lbl">MOVES</div><div class="kpi-val" id="kM" style="color:var(--moves)">26</div><div class="kpi-sub" id="kMs">21.3%</div></div>
+  </div>
+
+  <div class="card">
+    <p class="card-hd" id="chartHd">Weekly Inspection Volume — All Managers</p>
+    <div class="legend" style="margin-bottom:12px">
+      <div class="legend-item"><span class="swatch" style="background:var(--drive)"></span>DRIVE</div>
+      <div class="legend-item"><span class="swatch" style="background:var(--focus)"></span>FOCUS</div>
+      <div class="legend-item"><span class="swatch" style="background:var(--grasp)"></span>GRASP</div>
+      <div class="legend-item"><span class="swatch" style="background:var(--moves)"></span>MOVES</div>
+    </div>
+    <canvas id="wkChart" style="height:240px"></canvas>
+  </div>
+
+  <div class="card">
+    <p class="card-hd">All Managers — Inspection Summary</p>
+    <div style="overflow-x:auto">
+      <table class="mgr">
+        <thead>
+          <tr>
+            <th style="width:24px">#</th>
+            <th>HF Lead / Manager</th>
+            <th class="r" style="color:var(--drive)">D</th>
+            <th class="r" style="color:var(--focus)">F</th>
+            <th class="r" style="color:var(--grasp)">G</th>
+            <th class="r" style="color:var(--moves)">M</th>
+            <th class="r">Total</th>
+            <th class="r">Mix</th>
+          </tr>
+        </thead>
+        <tbody id="mgrBody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+const COLORS = ['#1969B3','#B58900','#14885A','#7030B8'];
+const TYPES  = ['DRIVE','FOCUS','GRASP','MOVES'];
+const WLABELS = ['W31','W32','W33','W34','W35','W36'];
+const WDATES  = ['Aug 1–2','Aug 3–9','Aug 10–16','Aug 17–23','Aug 24–30','Aug 31–Sep 4'];
+
+const LEADS = [
+  'Anna Bednarczyk','Daniel Vickers','Qasim Rafiq','Robert Bourne',
+  'Neil Hammond','Rohit Bharti','Anthony Russell',"Lewis O'Brien",
+  'Kieran Wild','Rachel Strickson','Windmill Engineering','Abdulmalik Hassan',
+  'James Bannister','Adrian Marin','Tony Matei','Anaya Sharma',
+  'Michelle Kelland','Kieran Sims','Darron Bonser','Mohammed Hussain',
+  'Mandip Mandip','Daniel Butler','Alima Diakhoumpa','Ryan Henson',
+  'Harry Enyinda','Rebecca Howard','Tomas Matizonka','Bradley Giles'
+];
+
+/* [lead_idx, type_idx, week_idx, shift_idx] */
+const AUDITS = [
+  [11,0,5,0],[11,0,3,0],[6,2,4,0],[6,2,3,0],[6,0,3,0],
+  [0,0,2,0],[0,0,2,0],[0,0,2,0],[0,0,2,0],[7,0,2,0],
+  [0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0],
+  [7,0,1,0],[9,0,3,1],[2,0,0,0],
+  [10,1,5,1],[2,1,5,1],[2,1,2,0],[2,1,1,1],[2,1,2,1],[2,1,3,0],
+  [10,2,4,0],[2,2,3,0],[2,2,2,1],[2,2,2,0],[2,2,0,0],
+  [2,3,4,0],[2,3,1,1],[2,3,3,1],
+  [17,0,2,1],
+  [0,1,2,0],[0,1,2,0],[0,1,2,0],[0,1,2,0],
+  [0,1,1,0],[0,1,1,0],[0,1,1,0],[0,1,1,0],[16,1,1,0],[0,1,0,0],
+  [13,1,2,0],[24,2,4,1],[2,1,4,0],
+  [0,2,2,0],[0,2,2,0],[0,2,2,0],[0,2,2,0],[7,2,2,0],
+  [0,2,1,0],[0,2,1,0],[0,2,1,0],[0,2,1,0],[0,2,0,0],[25,2,0,0],
+  [19,1,1,0],[9,2,4,0],[8,1,4,1],[15,2,1,0],[14,1,3,0],[4,1,5,0],[9,2,2,1],
+  [0,3,2,0],[0,3,2,0],[0,3,2,0],[0,3,2,0],
+  [0,3,1,0],[0,3,1,0],[0,3,1,0],[0,3,1,0],[0,3,0,0],
+  [21,3,1,1],[4,3,0,0],[4,3,3,0],[4,3,5,0],[13,3,3,0],[4,3,1,0],[20,3,3,0],
+  [26,0,0,1],
+  [3,0,4,0],[3,0,3,0],[3,0,3,0],[3,0,4,0],[3,0,5,0],
+  [12,0,5,1],
+  [4,1,1,0],[4,0,1,0],[4,3,1,0],
+  [8,1,3,1],[8,3,3,1],
+  [5,1,5,1],[5,1,4,1],[5,1,3,0],
+  [12,2,3,1],[5,2,3,1],
+  [1,0,5,1],[1,0,5,1],[1,0,5,1],[1,0,4,1],[1,0,3,1],
+  [1,0,2,1],[1,0,2,1],[1,0,2,1],[1,0,2,1],
+  [1,0,1,1],[1,0,1,1],[1,0,1,1],[1,0,0,1],
+  [1,3,3,1],[1,3,2,1],
+  [5,2,4,1],[22,3,1,1],
+  [3,0,5,0],[3,0,4,0],[3,0,4,0],[3,0,3,0],[3,0,5,0],
+  [18,0,1,0],[23,3,1,0],[27,3,4,0]
+];
+
+/* Pre-compute per-manager stats */
+function computeStats(leadIdx){
+  const rows = leadIdx < 0 ? AUDITS : AUDITS.filter(a=>a[0]===leadIdx);
+  const byType = [0,0,0,0];
+  /* weekly[wk][type] */
+  const weekly = Array.from({length:6},()=>[0,0,0,0]);
+  for(const [,ti,wi] of rows){ byType[ti]++; weekly[wi][ti]++; }
+  return {total: rows.length, byType, weekly};
+}
+
+/* Build manager summary list sorted by total */
+const MGR_STATS = LEADS.map((name,idx)=>({name,idx,...computeStats(idx)}));
+MGR_STATS.sort((a,b)=>b.total-a.total);
+
+/* Populate dropdown */
+const picker = document.getElementById('managerPicker');
+MGR_STATS.forEach(m=>{
+  if(!m.total) return;
+  const o = document.createElement('option');
+  o.value = m.idx; o.textContent = `${m.name} (${m.total})`;
+  picker.appendChild(o);
+});
+
+/* Populate manager table */
+const mgrBody = document.getElementById('mgrBody');
+MGR_STATS.forEach((m,i)=>{
+  if(!m.total) return;
+  const max = Math.max(...m.byType)||1;
+  const segs = m.byType.map((v,ti)=>`<div class="sparkbar-seg" style="flex:${v||0.01};background:${COLORS[ti]};opacity:${v?1:0}"></div>`).join('');
+  const tr = document.createElement('tr');
+  tr.dataset.idx = m.idx;
+  tr.innerHTML = `
+    <td style="color:var(--text-sec);font-family:'Barlow Condensed',sans-serif;font-size:11px">${i+1}</td>
+    <td class="mgr-name">${m.name}</td>
+    <td class="r">${m.byType[0]||'—'}</td>
+    <td class="r">${m.byType[1]||'—'}</td>
+    <td class="r">${m.byType[2]||'—'}</td>
+    <td class="r">${m.byType[3]||'—'}</td>
+    <td class="r"><span class="mgr-total">${m.total}</span></td>
+    <td class="r"><div class="sparkbar">${segs}</div></td>`;
+  tr.addEventListener('click',()=>selectManager(m.idx));
+  mgrBody.appendChild(tr);
+});
+
+/* ── Chart ── */
+function cssv(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+function drawChart(canvas, weekly){
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const W=rect.width, H=rect.height;
+  const ml=46,mr=14,mt=20,mb=50;
+  const cW=W-ml-mr, cH=H-mt-mb;
+
+  const totals = weekly.map(w=>w.reduce((a,b)=>a+b,0));
+  const maxVal = Math.max(...totals,1);
+  const yMax   = Math.max(Math.ceil((maxVal+2)/5)*5, 5);
+
+  const textC  = cssv('--text-sec');
+  const gridC  = cssv('--grid');
+  const textMain = cssv('--text');
+
+  for(let v=0; v<=yMax; v+=Math.max(1,Math.round(yMax/5))){
+    if(v > yMax) break;
+    const y = mt + cH - (v/yMax)*cH;
+    ctx.strokeStyle=gridC; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(ml,y); ctx.lineTo(ml+cW,y); ctx.stroke();
+    ctx.fillStyle=textC; ctx.textAlign='right';
+    ctx.font=`11px Barlow, system-ui, sans-serif`;
+    ctx.fillText(v, ml-6, y+4);
+  }
+
+  const nW=weekly.length, slotW=cW/nW, barW=slotW*0.52, SEG_GAP=1;
+  weekly.forEach((wk,wi)=>{
+    const total = wk.reduce((a,b)=>a+b,0);
+    const cx = ml+wi*slotW+slotW/2, bx=cx-barW/2;
+    let y = mt+cH;
+    wk.forEach((val,ti)=>{
+      if(!val) return;
+      const h=(val/yMax)*cH - SEG_GAP;
+      y-=h;
+      const isTop=wk.slice(ti+1).every(v=>v===0);
+      ctx.fillStyle=COLORS[ti];
+      if(isTop){
+        const rad=Math.min(4,h/2);
+        ctx.beginPath();
+        ctx.moveTo(bx+rad,y); ctx.lineTo(bx+barW-rad,y);
+        ctx.arcTo(bx+barW,y,bx+barW,y+rad,rad); ctx.lineTo(bx+barW,y+h);
+        ctx.lineTo(bx,y+h); ctx.lineTo(bx,y+rad);
+        ctx.arcTo(bx,y,bx+rad,y,rad); ctx.closePath(); ctx.fill();
+      } else {
+        ctx.fillRect(bx,y,barW,h);
+      }
+      y-=SEG_GAP;
+    });
+    if(total>0){
+      ctx.fillStyle=textMain;
+      ctx.font=`bold 11px Barlow Condensed, sans-serif`;
+      ctx.textAlign='center';
+      ctx.fillText(total, cx, mt+cH-(total/yMax)*cH-4);
+    }
+    ctx.fillStyle=textC;
+    ctx.font=`bold 11px Barlow Condensed, sans-serif`;
+    ctx.textAlign='center';
+    ctx.fillText(WLABELS[wi], cx, mt+cH+16);
+    ctx.font=`10px Barlow, sans-serif`;
+    ctx.fillText(WDATES[wi], cx, mt+cH+30);
+  });
+}
+
+/* ── State ── */
+let currentIdx = -1;
+const wkCanvas = document.getElementById('wkChart');
+
+function selectManager(idx){
+  currentIdx = idx;
+  const stats = computeStats(idx);
+  const tot = stats.total;
+
+  /* highlight table row */
+  mgrBody.querySelectorAll('tr').forEach(tr=>{
+    tr.classList.toggle('selected', parseInt(tr.dataset.idx)===idx);
+  });
+
+  /* update KPIs */
+  document.getElementById('kTot').textContent = tot;
+  const name = idx<0 ? 'All managers' : LEADS[idx];
+  document.getElementById('kSub').textContent = name + ' · Aug 1 – Sep 4';
+  document.getElementById('kD').textContent = stats.byType[0];
+  document.getElementById('kF').textContent = stats.byType[1];
+  document.getElementById('kG').textContent = stats.byType[2];
+  document.getElementById('kM').textContent = stats.byType[3];
+  [0,1,2,3].forEach(ti=>{
+    const pct = tot ? Math.round(stats.byType[ti]/tot*100)+'%' : '—';
+    document.getElementById(['kDs','kFs','kGs','kMs'][ti]).textContent = pct;
+  });
+
+  /* update chart */
+  document.getElementById('chartHd').textContent =
+    `Weekly Inspection Volume — ${idx<0?'All Managers':LEADS[idx]}`;
+  drawChart(wkCanvas, stats.weekly);
+
+  /* sync picker */
+  picker.value = idx;
+}
+
+picker.addEventListener('change', e=>selectManager(parseInt(e.target.value)));
+
+/* Tooltip for chart */
+const tt = document.getElementById('tt');
+wkCanvas.addEventListener('mousemove', e=>{
+  const rect=wkCanvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  const ml=46,mr=14, cW=rect.width-ml-mr;
+  const slotW=cW/6;
+  const wi=Math.floor((mx-ml)/slotW);
+  if(wi<0||wi>=6){ tt.style.display='none'; return; }
+  const stats=computeStats(currentIdx);
+  const wk=stats.weekly[wi], tot=wk.reduce((a,b)=>a+b,0);
+  tt.innerHTML=`<div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">${WLABELS[wi]} <span style="color:var(--text-sec);font-weight:400">${WDATES[wi]}</span></div>`+
+    `<hr style="margin:5px 0;border:none;border-top:1px solid var(--border)">` +
+    TYPES.map((t,ti)=>`<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:${COLORS[ti]}">${t}</span><strong>${wk[ti]}</strong></div>`).join('')+
+    `<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border);display:flex;justify-content:space-between"><span>Total</span><strong>${tot}</strong></div>`;
+  tt.style.display='block';
+  const pad=14;
+  const tx=e.clientX+pad+tt.offsetWidth>window.innerWidth?e.clientX-tt.offsetWidth-pad:e.clientX+pad;
+  tt.style.left=tx+'px'; tt.style.top=(e.clientY-24)+'px';
+});
+wkCanvas.addEventListener('mouseleave',()=>tt.style.display='none');
+
+/* Init */
+selectManager(-1);
+const ro=new ResizeObserver(()=>{ const s=computeStats(currentIdx); drawChart(wkCanvas,s.weekly); });
+ro.observe(wkCanvas);
+</script>

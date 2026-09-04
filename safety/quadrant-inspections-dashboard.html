@@ -1,0 +1,404 @@
+<title>Safety Quadrant Inspections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #ECF0F8;
+  --surface: #FFFFFF;
+  --text: #1B2338;
+  --text-sec: #566080;
+  --border: #D2D8EA;
+  --grid: #E4E9F4;
+  --accent: #E05A0A;
+  --drive: #1969B3;
+  --focus: #B58900;
+  --grasp: #14885A;
+  --moves: #7030B8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1520; --surface: #162030; --text: #E6EBF5;
+    --text-sec: #8898B8; --border: #253048; --grid: #1D2B40;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1520; --surface: #162030; --text: #E6EBF5;
+  --text-sec: #8898B8; --border: #253048; --grid: #1D2B40;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Barlow', system-ui, sans-serif; font-size: 14px; line-height: 1.5; }
+
+header {
+  background: var(--surface);
+  border-bottom: 3px solid var(--accent);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hdr-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.hdr-brand em { color: var(--accent); font-style: normal; }
+.hdr-sep { width: 1px; height: 20px; background: var(--border); }
+.hdr-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 600; color: var(--text-sec); letter-spacing: 0.02em; }
+.hdr-period { margin-left: auto; font-size: 12px; color: var(--text-sec); font-variant-numeric: tabular-nums; }
+
+main { max-width: 1080px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; }
+
+.kpi-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr; gap: 10px; }
+.kpi {
+  background: var(--surface); border-radius: 5px; padding: 14px 16px;
+  border-left: 4px solid transparent;
+}
+.kpi.total { border-left-color: var(--accent); }
+.kpi.drive { border-left-color: var(--drive); }
+.kpi.focus { border-left-color: var(--focus); }
+.kpi.grasp { border-left-color: var(--grasp); }
+.kpi.moves { border-left-color: var(--moves); }
+.kpi-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 2px; }
+.kpi-val { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 11px; color: var(--text-sec); margin-top: 3px; }
+
+.card { background: var(--surface); border-radius: 5px; padding: 18px 20px; }
+.card-hd { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-sec); margin: 0 0 14px; }
+
+.legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-sec); font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+canvas { display: block; width: 100%; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.hbar-group { display: flex; flex-direction: column; gap: 10px; }
+.hbar-row { display: grid; grid-template-columns: 58px 1fr 28px; align-items: center; gap: 8px; }
+.hbar-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.hbar-track { height: 16px; background: var(--bg); border-radius: 3px; overflow: hidden; display: flex; }
+.hbar-fill { height: 100%; }
+.hbar-num { font-size: 11px; color: var(--text-sec); text-align: right; font-variant-numeric: tabular-nums; }
+
+.shift-legend { display: flex; gap: 12px; margin-bottom: 14px; }
+.shift-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-sec); }
+
+table.aud { width: 100%; border-collapse: collapse; }
+table.aud th {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-sec);
+  padding: 0 10px 8px; border-bottom: 1px solid var(--border); text-align: left;
+}
+table.aud th.r { text-align: center; }
+table.aud td { padding: 7px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+table.aud td.r { text-align: center; }
+table.aud tr:last-child td { border-bottom: none; }
+.aud-rank { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--text-sec); }
+.aud-name { font-weight: 500; }
+.aud-total { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; }
+
+.mini-bar-wrap { display: flex; gap: 2px; height: 12px; align-items: flex-end; }
+.mini-bar { border-radius: 1px 1px 0 0; min-width: 6px; }
+
+.tooltip {
+  position: fixed; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 8px 12px; pointer-events: none; display: none;
+  font-size: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.18); z-index: 100; min-width: 140px;
+}
+
+@media (max-width: 680px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .kpi.total { grid-column: span 2; }
+  .two-col { grid-template-columns: 1fr; }
+}
+</style>
+
+<header>
+  <div class="hdr-brand">Safety Quadrant <em>UK</em></div>
+  <div class="hdr-sep"></div>
+  <div class="hdr-title">Inspection Activity</div>
+  <div class="hdr-period">1 Aug – 4 Sep 2026</div>
+</header>
+
+<main>
+
+<div class="kpi-row">
+  <div class="kpi total">
+    <div class="kpi-lbl">Total Inspections</div>
+    <div class="kpi-val">122</div>
+    <div class="kpi-sub">Aug 1 – Sep 4, 2026 · 5 weeks</div>
+  </div>
+  <div class="kpi drive">
+    <div class="kpi-lbl">DRIVE</div>
+    <div class="kpi-val" style="color:var(--drive)">44</div>
+    <div class="kpi-sub">36.1% of total</div>
+  </div>
+  <div class="kpi focus">
+    <div class="kpi-lbl">FOCUS</div>
+    <div class="kpi-val" style="color:var(--focus)">27</div>
+    <div class="kpi-sub">22.1% of total</div>
+  </div>
+  <div class="kpi grasp">
+    <div class="kpi-lbl">GRASP</div>
+    <div class="kpi-val" style="color:var(--grasp)">25</div>
+    <div class="kpi-sub">20.5% of total</div>
+  </div>
+  <div class="kpi moves">
+    <div class="kpi-lbl">MOVES</div>
+    <div class="kpi-val" style="color:var(--moves)">26</div>
+    <div class="kpi-sub">21.3% of total</div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="card-hd">Weekly Inspection Volume</p>
+  <div class="legend" style="margin-bottom:12px">
+    <div class="legend-item"><span class="swatch" style="background:var(--drive)"></span>DRIVE</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--focus)"></span>FOCUS</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--grasp)"></span>GRASP</div>
+    <div class="legend-item"><span class="swatch" style="background:var(--moves)"></span>MOVES</div>
+  </div>
+  <canvas id="wkChart" style="height:250px"></canvas>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <p class="card-hd">Day vs Night Split by Type</p>
+    <div class="shift-legend">
+      <div class="shift-legend-item"><span class="swatch" style="background:currentColor;opacity:.7;color:var(--drive);width:10px;height:10px;border-radius:2px;background:var(--drive)"></span>Day 07:00–18:59</div>
+      <div class="shift-legend-item"><span class="swatch" style="background:var(--bg);border:1px solid var(--border)"></span>Night 19:00–06:59</div>
+    </div>
+    <div class="hbar-group" id="shiftBars"></div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-sec)">
+      Total: <strong style="color:var(--text)">84</strong> day · <strong style="color:var(--text)">38</strong> night · 68.9% day rate
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-hd">Inspection Type Distribution</p>
+    <div class="hbar-group" id="typeBars"></div>
+    <div style="margin-top:14px">
+      <div style="height:4px;background:linear-gradient(to right,var(--drive) 36.1%,var(--focus) 36.1% 58.2%,var(--grasp) 58.2% 78.7%,var(--moves) 78.7%);border-radius:2px"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-sec);margin-top:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em">
+        <span>0</span><span>30</span><span>60</span><span>90</span><span>122</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="card-hd">Top Auditors</p>
+  <div style="overflow-x:auto">
+    <table class="aud">
+      <thead>
+        <tr>
+          <th style="width:26px">#</th>
+          <th>Auditor</th>
+          <th class="r" style="color:var(--drive)">D</th>
+          <th class="r" style="color:var(--focus)">F</th>
+          <th class="r" style="color:var(--grasp)">G</th>
+          <th class="r" style="color:var(--moves)">M</th>
+          <th class="r">Total</th>
+          <th class="r">Mix</th>
+        </tr>
+      </thead>
+      <tbody id="audBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+const COLORS = ['#1969B3','#B58900','#14885A','#7030B8'];
+const TYPES  = ['DRIVE','FOCUS','GRASP','MOVES'];
+const WEEKLY = [[4,1,3,2],[10,8,5,10],[10,7,8,5],[7,4,4,6],[5,3,5,2],[8,4,0,1]];
+const WLABELS = ['W31','W32','W33','W34','W35','W36'];
+const WDATES  = ['Aug 1–2','Aug 3–9','Aug 10–16','Aug 17–23','Aug 24–30','Aug 31–Sep 4'];
+const SHIFT_S1 = [27,19,19,19];
+const SHIFT_S2 = [17,8,6,7];
+const AUDITORS = [
+  {n:'Anna Bednarczyk', d:9,  f:9, g:9, m:9,  t:36},
+  {n:'Daniel Vickers',  d:13, f:0, g:0, m:2,  t:15},
+  {n:'Qasim Rafiq',     d:1,  f:6, g:4, m:3,  t:14},
+  {n:'Robert Bourne',   d:10, f:0, g:0, m:0,  t:10},
+  {n:'Rohit Bharti',    d:0,  f:3, g:2, m:0,  t:5},
+  {n:'Sanaa Khan',      d:1,  f:1, g:0, m:3,  t:5},
+  {n:"Lewis O'Brien",   d:2,  f:0, g:1, m:0,  t:3},
+  {n:'Anthony Russell', d:1,  f:0, g:2, m:0,  t:3},
+  {n:'Kieran Wild',     d:0,  f:2, g:0, m:1,  t:3},
+  {n:'Tony Matei',      d:0,  f:2, g:0, m:0,  t:2},
+  {n:'Abdulmalik Hassan',d:2, f:0, g:0, m:0,  t:2},
+  {n:'Mandip Mandip',   d:0,  f:0, g:0, m:2,  t:2},
+];
+
+function cssv(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+/* ── Weekly Stacked Bar Chart ── */
+function drawWeekly(canvas){
+  const dpr = window.devicePixelRatio || 1;
+  const r   = canvas.getBoundingClientRect();
+  canvas.width  = r.width  * dpr;
+  canvas.height = r.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = r.width, H = r.height;
+  const ml=46, mr=14, mt=20, mb=50;
+  const cW=W-ml-mr, cH=H-mt-mb;
+
+  const maxVal = Math.max(...WEEKLY.map(w=>w.reduce((a,b)=>a+b,0)));
+  const yMax   = Math.ceil((maxVal+5)/5)*5;
+
+  const textC = cssv('--text-sec');
+  const gridC = cssv('--grid');
+  const textMain = cssv('--text');
+
+  /* grid + y-axis */
+  ctx.font = `11px Barlow, system-ui, sans-serif`;
+  for(let v=0; v<=yMax; v+=10){
+    const y = mt + cH - (v/yMax)*cH;
+    ctx.strokeStyle = gridC; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(ml,y); ctx.lineTo(ml+cW,y); ctx.stroke();
+    ctx.fillStyle = textC; ctx.textAlign='right';
+    ctx.fillText(v, ml-6, y+4);
+  }
+
+  /* bars */
+  const nW    = WEEKLY.length;
+  const slotW = cW / nW;
+  const barW  = slotW * 0.52;
+  const SEG_GAP = 1;
+
+  WEEKLY.forEach((wk, wi)=>{
+    const cx = ml + wi*slotW + slotW/2;
+    const bx = cx - barW/2;
+    const total = wk.reduce((a,b)=>a+b,0);
+    let y = mt + cH;
+
+    wk.forEach((val, ti)=>{
+      if(!val) return;
+      const h = (val/yMax)*cH - SEG_GAP;
+      y -= h;
+      const isTop = wk.slice(ti+1).every(v=>v===0);
+      ctx.fillStyle = COLORS[ti];
+      if(isTop){
+        const rad = Math.min(4, h/2);
+        ctx.beginPath();
+        ctx.moveTo(bx+rad, y);
+        ctx.lineTo(bx+barW-rad, y);
+        ctx.arcTo(bx+barW, y, bx+barW, y+rad, rad);
+        ctx.lineTo(bx+barW, y+h);
+        ctx.lineTo(bx, y+h);
+        ctx.lineTo(bx, y+rad);
+        ctx.arcTo(bx, y, bx+rad, y, rad);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.fillRect(bx, y, barW, h);
+      }
+      y -= SEG_GAP;
+    });
+
+    /* total label */
+    ctx.fillStyle = textMain;
+    ctx.font = `bold 11px Barlow Condensed, sans-serif`;
+    ctx.textAlign = 'center';
+    const topY = mt + cH - (total/yMax)*cH;
+    ctx.fillText(total, cx, topY - 4);
+
+    /* x labels */
+    ctx.fillStyle = textC;
+    ctx.font = `bold 11px Barlow Condensed, sans-serif`;
+    ctx.fillText(WLABELS[wi], cx, mt+cH+16);
+    ctx.font = `10px Barlow, sans-serif`;
+    ctx.fillText(WDATES[wi],  cx, mt+cH+30);
+  });
+}
+
+const wkCanvas = document.getElementById('wkChart');
+drawWeekly(wkCanvas);
+const ro = new ResizeObserver(()=>drawWeekly(wkCanvas));
+ro.observe(wkCanvas);
+
+/* tooltip */
+const tt = document.getElementById('tt');
+wkCanvas.addEventListener('mousemove', e=>{
+  const rect = wkCanvas.getBoundingClientRect();
+  const mx   = e.clientX - rect.left;
+  const ml=46, mr=14;
+  const cW = rect.width - ml - mr;
+  const slotW = cW / WEEKLY.length;
+  let wi = Math.floor((mx - ml) / slotW);
+  if(wi < 0 || wi >= WEEKLY.length){ tt.style.display='none'; return; }
+  const wk = WEEKLY[wi];
+  const tot = wk.reduce((a,b)=>a+b,0);
+  tt.innerHTML = `<div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">${WLABELS[wi]} <span style="color:var(--text-sec);font-weight:400">${WDATES[wi]}</span></div><hr style="margin:5px 0;border:none;border-top:1px solid var(--border)">` +
+    TYPES.map((t,ti)=>`<div style="display:flex;justify-content:space-between;gap:16px"><span style="color:${COLORS[ti]}">${t}</span><strong>${wk[ti]}</strong></div>`).join('') +
+    `<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border);display:flex;justify-content:space-between"><span>Total</span><strong>${tot}</strong></div>`;
+  tt.style.display='block';
+  const pad = 14;
+  const tx = e.clientX + pad + tt.offsetWidth > window.innerWidth ? e.clientX - tt.offsetWidth - pad : e.clientX + pad;
+  tt.style.left = tx+'px'; tt.style.top=(e.clientY-24)+'px';
+});
+wkCanvas.addEventListener('mouseleave',()=>tt.style.display='none');
+
+/* ── Shift bars ── */
+const sb = document.getElementById('shiftBars');
+TYPES.forEach((t,ti)=>{
+  const tot = SHIFT_S1[ti]+SHIFT_S2[ti];
+  const pct = Math.round(SHIFT_S1[ti]/tot*100);
+  sb.insertAdjacentHTML('beforeend',`
+    <div class="hbar-row">
+      <div class="hbar-lbl" style="color:${COLORS[ti]}">${t}</div>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:${pct}%;background:${COLORS[ti]}"></div>
+        <div class="hbar-fill" style="flex:1;background:${COLORS[ti]}22"></div>
+      </div>
+      <div class="hbar-num">${pct}%</div>
+    </div>`);
+});
+
+/* ── Type distribution ── */
+const TOTALS=[44,27,25,26];
+const maxT = Math.max(...TOTALS);
+const tb = document.getElementById('typeBars');
+TYPES.forEach((t,ti)=>{
+  const pct = Math.round(TOTALS[ti]/maxT*100);
+  tb.insertAdjacentHTML('beforeend',`
+    <div class="hbar-row">
+      <div class="hbar-lbl" style="color:${COLORS[ti]}">${t}</div>
+      <div class="hbar-track">
+        <div class="hbar-fill" style="width:${pct}%;background:${COLORS[ti]};border-radius:2px"></div>
+      </div>
+      <div class="hbar-num">${TOTALS[ti]}</div>
+    </div>`);
+});
+
+/* ── Auditor table ── */
+const ab = document.getElementById('audBody');
+const maxAud = AUDITORS[0].t;
+AUDITORS.forEach((a,i)=>{
+  const vals = [a.d,a.f,a.g,a.m];
+  const maxV = Math.max(...vals);
+  const bars = vals.map((v,ti)=>{
+    const h = maxV ? Math.round(v/maxV*20)+2 : 2;
+    return `<div class="mini-bar" style="height:${h}px;background:${COLORS[ti]};width:8px"></div>`;
+  }).join('');
+  ab.insertAdjacentHTML('beforeend',`
+    <tr>
+      <td><span class="aud-rank">${i+1}</span></td>
+      <td class="aud-name">${a.n}</td>
+      <td class="r">${a.d||'—'}</td>
+      <td class="r">${a.f||'—'}</td>
+      <td class="r">${a.g||'—'}</td>
+      <td class="r">${a.m||'—'}</td>
+      <td class="r"><span class="aud-total">${a.t}</span></td>
+      <td class="r"><div class="mini-bar-wrap">${bars}</div></td>
+    </tr>`);
+});
+</script>
